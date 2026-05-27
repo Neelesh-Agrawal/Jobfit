@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jobfit — CV match & fit checker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0d;
+      --surface: #141414;
+      --surface-2: #1a1a1a;
+      --border: #222;
+      --border-2: #2a2a2a;
+      --ink: #e8e6df;
+      --ink-2: #888;
+      --ink-3: #444;
+      --accent: #e8e6df;
+      --green: #2ecc71;
+      --amber: #f39c12;
+      --red: #e74c3c;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: var(--ink-3);
+    }
+
+    .hero {
+      padding: 2.5rem 2rem 0;
+      max-width: 640px;
+    }
+
+    .hero h1 {
+      font-size: clamp(24px, 3.5vw, 36px);
+      font-weight: 300;
+      line-height: 1.3;
+      letter-spacing: -0.3px;
+      margin-bottom: 0.6rem;
+    }
+
+    .hero h1 em { font-style: italic; color: var(--ink-2); }
+
+    .hero p {
+      font-size: 14px;
+      color: var(--ink-2);
+      line-height: 1.65;
+      font-weight: 300;
+    }
+
+    /* MODE TABS */
+    .mode-tabs {
+      display: flex;
+      gap: 0;
+      margin: 2rem 2rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mode-tab {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      padding: 10px 20px;
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      color: var(--ink-3);
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: -1px;
+    }
+
+    .mode-tab:hover { color: var(--ink-2); }
+    .mode-tab.active { color: var(--ink); border-bottom-color: var(--ink); }
+
+    /* LAYOUT */
+    .layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      min-height: calc(100vh - 200px);
+    }
+
+    .panel-left {
+      border-right: 1px solid var(--border);
+      padding: 1.75rem 2rem;
+    }
+
+    .panel-right {
+      padding: 1.75rem 2rem;
+    }
+
+    /* FORM */
+    .field-group { margin-bottom: 1.4rem; }
+
+    label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: var(--ink-3);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 12px 14px;
+      outline: none;
+      resize: vertical;
+      line-height: 1.6;
+      transition: border-color 0.15s;
+    }
+
+    textarea::placeholder { color: var(--ink-3); font-weight: 300; }
+    textarea:focus { border-color: var(--border-2); }
+
+    .jd-area { min-height: 130px; }
+    .cv-area { min-height: 130px; }
+
+    /* FIT MODE QUESTIONS */
+    .fit-questions { display: none; }
+    .fit-questions.on { display: block; }
+
+    .q-item { margin-bottom: 1.2rem; }
+
+    .q-label {
+      font-size: 13px;
+      color: var(--ink-2);
+      margin-bottom: 6px;
+      display: block;
+      line-height: 1.5;
+      font-weight: 300;
+    }
+
+    .q-input {
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.15s;
+      line-height: 1.5;
+      resize: none;
+      min-height: 60px;
+    }
+
+    .q-input::placeholder { color: var(--ink-3); }
+    .q-input:focus { border-color: var(--border-2); }
+
+    /* BTN */
+    .gen-btn {
+      width: 100%;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 13px;
+      background: var(--ink);
+      color: var(--bg);
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      margin-top: 0.5rem;
+    }
+
+    .gen-btn:hover { opacity: 0.85; }
+    .gen-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* LOADING */
+    .loading { display: none; align-items: center; gap: 10px; margin-top: 1.25rem; }
+    .loading.on { display: flex; }
+
+    .dots { display: flex; gap: 5px; }
+    .dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--border-2);
+      animation: dp 1.2s ease-in-out infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dp {
+      0%,80%,100% { background: var(--border-2); }
+      40% { background: var(--ink-2); }
+    }
+
+    .load-txt {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--ink-3);
+    }
+
+    .err-msg {
+      display: none;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--red);
+      margin-top: 1rem;
+      line-height: 1.5;
+    }
+    .err-msg.on { display: block; }
+
+    /* EMPTY STATE */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 300px;
+      gap: 12px;
+      opacity: 0.25;
+    }
+
+    .empty-icon {
+      width: 40px; height: 40px;
+      border: 1.5px solid var(--ink-3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-txt {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--ink-3);
+    }
+
+    /* RESULTS */
+    .results { display: none; }
+    .results.on { display: block; }
+
+    /* SCORE */
+    .score-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .score-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 52px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .score-num.high { color: var(--green); }
+    .score-num.mid { color: var(--amber); }
+    .score-num.low { color: var(--red); }
+
+    .score-meta { flex: 1; }
+
+    .score-verdict {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+
+    .score-sub {
+      font-size: 13px;
+      color: var(--ink-2);
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
+    /* SECTIONS */
+    .res-section { margin-bottom: 1.75rem; }
+
+    .res-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--ink-3);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .res-text {
+      font-size: 14px;
+      color: var(--ink-2);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* CV BULLETS */
+    .bullet-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .bullet-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 12px 14px;
+      position: relative;
+    }
+
+    .bullet-old {
+      font-size: 12px;
+      color: var(--ink-3);
+      text-decoration: line-through;
+      margin-bottom: 6px;
+      line-height: 1.5;
+      font-weight: 300;
+    }
+
+    .bullet-new {
+      font-size: 14px;
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    .bullet-copy {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      padding: 3px 9px;
+      border: 1px solid var(--border-2);
+      background: transparent;
+      color: var(--ink-3);
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.15s;
+      margin-top: 8px;
+      display: inline-block;
+    }
+
+    .bullet-copy:hover { border-color: var(--ink-2); color: var(--ink-2); }
+    .bullet-copy.copied { border-color: var(--green); color: var(--green); }
+
+    /* PILLS */
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .pill {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 2px;
+      letter-spacing: 0.3px;
+    }
+
+    .pill-green { background: rgba(46,204,113,0.1); color: var(--green); border: 1px solid rgba(46,204,113,0.2); }
+    .pill-red { background: rgba(231,76,60,0.1); color: var(--red); border: 1px solid rgba(231,76,60,0.2); }
+    .pill-amber { background: rgba(243,156,18,0.1); color: var(--amber); border: 1px solid rgba(243,156,18,0.2); }
+
+    .copy-all-btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      padding: 10px 18px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--ink-2);
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.15s;
+      margin-top: 1rem;
+    }
+
+    .copy-all-btn:hover { border-color: var(--ink-2); color: var(--ink); }
+    .copy-all-btn.copied { border-color: var(--green); color: var(--green); }
+
+    @media (max-width: 720px) {
+      .layout { grid-template-columns: 1fr; }
+      .panel-left { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">Jobfit</span>
+  <span class="nav-tag">SHIP69 / DAY 58</span>
+</nav>
+
+<div class="hero">
+  <h1>Know if you should apply. <em>Write a CV that lands.</em></h1>
+  <p>Paste the job description. Check your fit before you apply, or rewrite your CV bullets to match the role's language.</p>
+</div>
+
+<div class="mode-tabs">
+  <button class="mode-tab active" data-mode="fit" onclick="setMode('fit')">Fit Check</button>
+  <button class="mode-tab" data-mode="cv" onclick="setMode('cv')">CV Match</button>
+</div>
+
+<div class="layout">
+  <div class="panel-left">
+
+    <div class="field-group">
+      <label for="jdInput">Job Description</label>
+      <textarea class="jd-area" id="jdInput" placeholder="Paste the full job description here — role, requirements, responsibilities, the works."></textarea>
+    </div>
+
+    <!-- FIT MODE -->
+    <div class="fit-questions on" id="fitQuestions">
+      <div class="q-item">
+        <span class="q-label">What's your current role or background?</span>
+        <textarea class="q-input" id="q1" placeholder="e.g. Self-taught designer, 1 year freelancing, building Ship69"></textarea>
+      </div>
+      <div class="q-item">
+        <span class="q-label">What relevant skills or tools do you have?</span>
+        <textarea class="q-input" id="q2" placeholder="e.g. Figma, design systems, some React, built 50+ projects"></textarea>
+      </div>
+      <div class="q-item">
+        <span class="q-label">What's your biggest gap for this role?</span>
+        <textarea class="q-input" id="q3" placeholder="e.g. No formal degree, limited team experience"></textarea>
+      </div>
+      <div class="q-item">
+        <span class="q-label">Why do you want this specific role?</span>
+        <textarea class="q-input" id="q4" placeholder="e.g. Love the product, want to grow into product design"></textarea>
+      </div>
+    </div>
+
+    <!-- CV MODE -->
+    <div class="field-group" id="cvField" style="display:none">
+      <label for="cvInput">Your CV / Experience</label>
+      <textarea class="cv-area" id="cvInput" placeholder="Paste your current CV bullets or experience summary. The more specific, the better the rewrite."></textarea>
+    </div>
+
+    <button class="gen-btn" id="genBtn" onclick="generate()">
+      <span id="btnLabel">Check my fit →</span>
+    </button>
+
+    <div class="loading" id="loading">
+      <div class="dots">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <span class="load-txt" id="loadTxt">Analysing the role...</span>
+    </div>
+
+    <div class="err-msg" id="errMsg"></div>
+
+  </div>
+
+  <div class="panel-right">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3v10M3 8h10" stroke="#444" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="empty-txt">Results appear here</span>
+    </div>
+
+    <div class="results" id="results"></div>
+  </div>
+</div>
+
+<script>
+  let currentMode = 'fit';
+  let lastResult = null;
+
+  const loadMsgs = {
+    fit: ['Analysing the role...', 'Checking your fit...', 'Being honest with you...', 'Almost done...'],
+    cv: ['Reading the JD...', 'Matching keywords...', 'Rewriting your bullets...', 'Polishing the language...']
+  };
+
+  function setMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+    document.getElementById('fitQuestions').classList.toggle('on', mode === 'fit');
+    document.getElementById('cvField').style.display = mode === 'cv' ? 'block' : 'none';
+    document.getElementById('btnLabel').textContent = mode === 'fit' ? 'Check my fit →' : 'Rewrite my CV →';
+    document.getElementById('results').classList.remove('on');
+    document.getElementById('emptyState').style.display = 'flex';
+  }
+
+  function scoreClass(n) {
+    if (n >= 70) return 'high';
+    if (n >= 45) return 'mid';
+    return 'low';
+  }
+
+  async function generate() {
+    const jd = document.getElementById('jdInput').value.trim();
+    if (!jd) {
+      showErr('Paste a job description first.');
+      return;
+    }
+
+    const btn = document.getElementById('genBtn');
+    const loading = document.getElementById('loading');
+    const ltxt = document.getElementById('loadTxt');
+    const errMsg = document.getElementById('errMsg');
+    const emptyState = document.getElementById('emptyState');
+    const results = document.getElementById('results');
+
+    btn.disabled = true;
+    errMsg.classList.remove('on');
+    results.classList.remove('on');
+    emptyState.style.display = 'none';
+    loading.classList.add('on');
+
+    const msgs = loadMsgs[currentMode];
+    let mi = 0;
+    const lt = setInterval(() => { mi = (mi + 1) % msgs.length; ltxt.textContent = msgs[mi]; }, 1800);
+
+    let userContent = '';
+    let system = '';
+
+    if (currentMode === 'fit') {
+      const q1 = document.getElementById('q1').value.trim();
+      const q2 = document.getElementById('q2').value.trim();
+      const q3 = document.getElementById('q3').value.trim();
+      const q4 = document.getElementById('q4').value.trim();
+
+      if (!q1 || !q2) { clearInterval(lt); loading.classList.remove('on'); btn.disabled = false; emptyState.style.display = 'flex'; showErr('Fill in at least your background and skills.'); return; }
+
+      userContent = `JOB DESCRIPTION:\n${jd}\n\nMY BACKGROUND: ${q1}\nMY SKILLS: ${q2}\nMY GAPS: ${q3}\nWHY I WANT THIS: ${q4}`;
+
+      system = `You are a brutally honest but supportive careers advisor helping designers figure out whether to apply for a job. Be direct — don't sugarcoat, but also don't be discouraging without reason.
+
+Output ONLY a JSON object, no markdown, no preamble:
+{
+  "score": 72,
+  "verdict": "Short punchy verdict sentence. e.g. 'Strong fit — apply with confidence.' or 'Stretch role, but worth a shot.' Max 10 words.",
+  "summary": "Two sentences of honest overall assessment. Prose, no bullets.",
+  "strengths": ["keyword or skill", "keyword or skill", "keyword or skill"],
+  "gaps": ["gap or missing thing", "gap or missing thing"],
+  "wildcards": ["thing that could go either way"],
+  "shouldApply": true,
+  "coverLetterTip": "One specific sentence on what to address or lead with in the cover letter."
+}
+
+Score is 0-100 representing genuine fit. Be specific — reference actual things from the JD and their answers. No bullet points inside string values.`;
+
+    } else {
+      const cv = document.getElementById('cvInput').value.trim();
+      if (!cv) { clearInterval(lt); loading.classList.remove('on'); btn.disabled = false; emptyState.style.display = 'flex'; showErr('Paste your CV or experience first.'); return; }
+
+      userContent = `JOB DESCRIPTION:\n${jd}\n\nMY CURRENT CV / EXPERIENCE:\n${cv}`;
+
+      system = `You are a senior designer and career coach who rewrites CV bullets to match job descriptions without lying or exaggerating. Mirror the JD's language. Use numbers and outcomes where possible. Be specific.
+
+Output ONLY a JSON object, no markdown, no preamble:
+{
+  "score": 65,
+  "verdict": "Short overall match verdict. Max 10 words.",
+  "summary": "Two sentences on how well the CV matches and what the rewrites focus on. Prose, no bullets.",
+  "bullets": [
+    { "original": "the original bullet or experience as written", "rewritten": "the rewritten version using JD language and stronger framing" },
+    { "original": "...", "rewritten": "..." }
+  ],
+  "missingKeywords": ["keyword from JD missing in CV", "keyword"],
+  "tip": "One sentence on the single most important thing to add or change."
+}
+
+Rewrite every bullet or experience statement they gave you. If they gave a paragraph, split it into bullets. Use action verbs. No bullet points inside string values.`;
+    }
+
+    try {
+      const res = await fetch('/api/jobfit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1500,
+          system,
+          messages: [{ role: 'user', content: userContent }]
+        })
+      });
+
+      const data = await res.json();
+      const raw = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const p = JSON.parse(clean);
+      lastResult = { mode: currentMode, data: p };
+
+      clearInterval(lt);
+      loading.classList.remove('on');
+
+      renderResults(p);
+      results.classList.add('on');
+      btn.disabled = false;
+
+    } catch (e) {
+      clearInterval(lt);
+      loading.classList.remove('on');
+      emptyState.style.display = 'flex';
+      showErr('Something went wrong. Check your connection and try again.');
+      btn.disabled = false;
+    }
+  }
+
+  function renderResults(p) {
+    const results = document.getElementById('results');
+    const sc = scoreClass(p.score);
+
+    if (currentMode === 'fit') {
+      const applyBadge = p.shouldApply
+        ? `<span class="pill pill-green">Apply</span>`
+        : `<span class="pill pill-red">Skip this one</span>`;
+
+      results.innerHTML = `
+        <div class="score-bar">
+          <div class="score-num ${sc}">${p.score}</div>
+          <div class="score-meta">
+            <div class="score-verdict">${p.verdict}</div>
+            <div class="score-sub">${applyBadge}</div>
+          </div>
+        </div>
+
+        <div class="res-section">
+          <div class="res-label">Overall Assessment</div>
+          <div class="res-text">${p.summary}</div>
+        </div>
+
+        <div class="res-section">
+          <div class="res-label">Where You're Strong</div>
+          <div class="pill-row">${(p.strengths || []).map(s => `<span class="pill pill-green">${s}</span>`).join('')}</div>
+        </div>
+
+        ${(p.gaps || []).length ? `
+        <div class="res-section">
+          <div class="res-label">Gaps to Address</div>
+          <div class="pill-row">${p.gaps.map(g => `<span class="pill pill-red">${g}</span>`).join('')}</div>
+        </div>` : ''}
+
+        ${(p.wildcards || []).length ? `
+        <div class="res-section">
+          <div class="res-label">Could Go Either Way</div>
+          <div class="pill-row">${p.wildcards.map(w => `<span class="pill pill-amber">${w}</span>`).join('')}</div>
+        </div>` : ''}
+
+        <div class="res-section">
+          <div class="res-label">Cover Letter Tip</div>
+          <div class="res-text">${p.coverLetterTip}</div>
+        </div>
+      `;
+    } else {
+      const bulletsHtml = (p.bullets || []).map((b, i) => `
+        <div class="bullet-item">
+          <div class="bullet-old">${b.original}</div>
+          <div class="bullet-new">${b.rewritten}</div>
+          <button class="bullet-copy" onclick="copyBullet(${i})" data-idx="${i}">Copy</button>
+        </div>
+      `).join('');
+
+      results.innerHTML = `
+        <div class="score-bar">
+          <div class="score-num ${sc}">${p.score}</div>
+          <div class="score-meta">
+            <div class="score-verdict">${p.verdict}</div>
+            <div class="score-sub" style="font-size:13px;color:var(--ink-2);font-weight:300">${p.summary}</div>
+          </div>
+        </div>
+
+        <div class="res-section">
+          <div class="res-label">Rewritten Bullets</div>
+          <div class="bullet-list">${bulletsHtml}</div>
+          <button class="copy-all-btn" id="copyAllBtn" onclick="copyAllBullets()">Copy all rewritten bullets</button>
+        </div>
+
+        ${(p.missingKeywords || []).length ? `
+        <div class="res-section">
+          <div class="res-label">Missing Keywords</div>
+          <div class="pill-row">${p.missingKeywords.map(k => `<span class="pill pill-amber">${k}</span>`).join('')}</div>
+        </div>` : ''}
+
+        <div class="res-section">
+          <div class="res-label">One Thing to Fix</div>
+          <div class="res-text">${p.tip}</div>
+        </div>
+      `;
+    }
+  }
+
+  function copyBullet(i) {
+    if (!lastResult || !lastResult.data.bullets) return;
+    const txt = lastResult.data.bullets[i].rewritten;
+    navigator.clipboard.writeText(txt).then(() => {
+      const btn = document.querySelector(`.bullet-copy[data-idx="${i}"]`);
+      if (btn) { btn.textContent = 'Copied ✓'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000); }
+    });
+  }
+
+  function copyAllBullets() {
+    if (!lastResult || !lastResult.data.bullets) return;
+    const txt = lastResult.data.bullets.map(b => b.rewritten).join('\n\n');
+    navigator.clipboard.writeText(txt).then(() => {
+      const btn = document.getElementById('copyAllBtn');
+      if (btn) { btn.textContent = 'Copied ✓'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'Copy all rewritten bullets'; btn.classList.remove('copied'); }, 2000); }
+    });
+  }
+
+  function showErr(msg) {
+    const el = document.getElementById('errMsg');
+    el.textContent = msg;
+    el.classList.add('on');
+  }
+</script>
+
+</body>
+</html>

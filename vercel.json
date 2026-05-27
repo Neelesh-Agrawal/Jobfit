@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/api/jobfit", "destination": "/api/jobfit.js" },
+    { "source": "/", "destination": "/index.html" }
+  ]
+}
