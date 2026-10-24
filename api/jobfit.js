@@ -21,7 +21,6 @@ export default async function handler(req, res) {
     // and translate the response back into an Anthropic-like shape so the UI keeps working.
     const {
       model: _ignoredModel,
-      reasoning_effort: 'low',
       max_tokens,
       system,
       messages
