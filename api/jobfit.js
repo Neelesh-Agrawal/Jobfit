@@ -21,6 +21,7 @@ export default async function handler(req, res) {
     // and translate the response back into an Anthropic-like shape so the UI keeps working.
     const {
       model: _ignoredModel,
+      reasoning_effort: 'low',
       max_tokens,
       system,
       messages
@@ -36,7 +37,8 @@ export default async function handler(req, res) {
     ];
 
     const groqPayload = {
-      model: 'llama-3.3-70b-versatile',
+      model: 'openai/gpt-oss-120b',
+      reasoning_effort: 'low',
       messages: groqMessages,
       max_tokens: typeof max_tokens === 'number' ? max_tokens : 1500,
       temperature: 0.2
